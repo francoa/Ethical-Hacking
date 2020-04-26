@@ -1,0 +1,12 @@
+python -c 'import pty;pty.spawn("/bin/bash")'
+CTRL-z
+stty raw -echo
+ENter
+fg
+Enter x2
+stty -a
+stty rows ... cols ...
+
+cp doesn't preserve file ownership
+
+githooks - sudo on them, very dangerous

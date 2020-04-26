@@ -1,0 +1,8 @@
+ftp IP - user anonymous
+gobuster dir -u http://IP -w directoryShareList.txt -x php
+curl http://user:pass@IP/login
+curl -XPOST http://IP/login -d 'username=user&password=pass'
+JWT tokens : base 64 decode
+curl IP -H 'Authorization: Bearer JWTToken'
+jq program
+Interact with REST APIs

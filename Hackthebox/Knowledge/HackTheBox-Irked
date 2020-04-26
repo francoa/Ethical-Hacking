@@ -1,0 +1,14 @@
+gobuster = dirbuster
+
+ncat IP port
+
+steghide extract -sf file.jpeg -p "password"
+
+ltrace executable
+
+system call with no full path can be dangerous:
+system("who")
+export PATH=/tmp/:$PATH
+vi /tmp/who
+
+and that's it

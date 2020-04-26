@@ -1,0 +1,36 @@
+Gaining access
+
+** To Servers:
+	- Start with information gathering, find open ports, installed services, OS version, applications, etc.
+
+- Using metasploitable2 for testing
+- Information gathering:
+	- nmap
+- Metasploit
+	- In kali: run metasploit
+	- use exploit
+	- show options
+	- set option1 value1
+	- exploit
+- For reverse shells it is useful to listen in port 80, so as to not get filtered by firewalls
+
+** To Clients:
+	- Malware, phishing, trojans, social engineering, information gathering
+	- Require the user to do something
+
+*** Veil framework:
+	- Generating backdoors
+	- Evasion -> generates backdoors
+	- Ordnance -> generates payload, reverse shell, etc.
+	- Meterpreter -> runs in memory (hard to detect, doesn't leave lots of footprints), allows to migrate to system processes.
+	- Signature checks of AV. Don't check your backdoor with VirusTotal cause they share their results. Use nodistribute instead?
+	- Listening to reverse shell.
+		- msfconsole; use exploit/multi/handler; set PAYLOAD ...; 
+
+*** Delivery of backdoor
+	- Spoof an update
+	- Requires DNS spoofing + evilgrade
+	- evilgrade - `show modules` - shows programs
+	- ARP poisoning + DNS spoofing
+
+*** Delivery of backdoor 2

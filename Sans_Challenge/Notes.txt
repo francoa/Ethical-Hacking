@@ -1,0 +1,161 @@
+---- Terminal challenge: Escape ed
+
+Thought process: This being my first Sans Hack Challenge, I approached this quite unknowingly of what to expect. Faced with this problem to start, I saw a terminal and started typing stuff. I didn't even bothered in looking at the title of the exercise (which gave the answer away), I just knew I had to exit that shell. So I tried the usual suspects: exit, kill, quit, etc. Nothing worked, so I started typing some random stuff, which gave some unusual results. Until I finally hit something interesting: !, or, as known in WinDbg, bang commands. Then I had a proper shell (running !sh), in which I once again tried the usual suspects. This time, when trying the exit command, a message was displayed that said that the ed process was still running. Aha! Now I only needed to kill that ed process. I located the executable by running ```whereis ed``` and then analyzed it running cat. I found there the Copyright header and a home page for the ed project. Then it struck me. I did some googling around and found out quickly enough that the command was just q.
+
+Using a text editor called ed. Command to quit is q. To run something outside is !. That's how I knew I was in a linux machine. I tried running sh but couldn't kill the process.
+
+---- Objective challenge: Windows Logs
+
+VIDEO:
+Use EMET, full native command line logging. Monitor event 4688. rundll32.exe cscript.exe csc.exe cvtres.exe. NSA use next. 
+
+Thought process: Bushy Evergreen was very helpful for this. After finishing the Escape ed challenge, he was spot on indicating me to learn about DeepBlueCLI. I then knew that I needed to use that to analyze the Windows event logs. Running the PowerShell script, I was faced with a lot of failed logging attempts, which is what I was expecting for a password spray attack. Most accounts had 77 failed attempts, but only one had 76. After the succeeded attempt (there were two, but the first one was before the start of the attack), the failed attempts stopped. That kind of gave it away. [INSERT NAME OF THE ACCOUNT]
+
+Get DeepBlueCLI Python code for Ubuntu. Install libevtx first. Now run DeepBlue.py against Security.evtx
+
+---- Terminal challenge: Linux path
+
+Thought process: Not very much to think about here. Ran ```whereis ls``` and just performed a cat on both. /bin/ls seemed the one I was looking for.
+
+---- Terminal challenge: Configure iptables (NOT FINISHED)
+
+Might be relevant later? "Please no, they're testing it at srf.elfu.org using default creds, but I don't know more. It's classified."
+
+Rules to set:
+1. Set the default policies to DROP for the INPUT, FORWARD, and OUTPUT chains.
+2. Create a rule to ACCEPT all connections that are ESTABLISHED,RELATED on the INPUT and the OUTPUT chains.
+3. Create a rule to ACCEPT only remote source IP address 172.19.0.225 to access the local SSH server (on port 22).
+4. Create a rule to ACCEPT any source IP to the local TCP services on ports 21 and 80.
+5. Create a rule to ACCEPT all OUTPUT traffic with a destination TCP port of 80.
+6. Create a rule applied to the INPUT chain to ACCEPT all traffic from the lo interface.
+
+Hint: 
+https://upcloud.com/community/tutorials/configure-iptables-centos/
+
+Commands - with sudo:
+	- iptables -F
+	- iptables -L --line-numbers
+	- iptables -P INPUT/FORWARD/OUTPUT DROP
+	- iptables -A INPUT/OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	- iptables -A INPUT -p tcp --dport 22 -s 172.19.0.225 -j ACCEPT
+	- iptables -A OUTPUT -p tcp --sport 22 -d 172.19.0.225 -j ACCEPT
+	- iptables -A INPUT -p tcp --dport 21/80 -j ACCEPT
+	- iptables -A OUTPUT -p tcp --sport 80 -j ACCEPT
+	- iptables -A INPUT -i lo -j ACCEPT
+
+The effect of source and destination will vary depending whether it is in the INPUT or the OUTPUT chain. Just as an example, I allow FTP connections from within my LAN only and I use blocks on both chains. So on the INPUT chain I've got
+
+iptables -A INPUT -p tcp -s 192.168.1.0/24 --dport 21 -j ACCEPT
+
+In this case the rule only allows FTP if the source is 192.168.1.0/24 and it is heading to port 21 on my linux box. That could be modified to
+
+iptables -A INPUT -p tcp -s 192.168.1.0/24 --sport 21 -j ACCEPT
+
+in which case the traffic would be allowed only if it was coming from port 21 on one of my lan computers.
+
+And then on the OUTPUT chain I've got
+
+iptables -A OUTPUT -p tcp -d 192.162.1.0/24 --sport 21 -j ACCEPT
+
+In this case the FTP connection is allowed only if it is going to my lan and it is coming from port 21 on my linux box. You could also do something like:
+
+iptables -A OUTPUT -p tcp -d 192.168.1.0/24 --dport 21 -j ACCEPT
+
+in which case any traffic heading for port 21 on any machine on the lan would be allowed regardless of what port on the linux box is originating the connection.
+
+
+--- Objective challenge: LETTER
+
+Date: February 28, 2019 
+To the Administration, Faculty, and Staff of Elf University 17 Christmas Tree Lane North Pole From: A Concerned and Aggrieved Character 
+Subject: DEMAND: Spread Holiday Cheer to Other Holidays and Mythical Characters... OR ELSE! 
+Attention All Elf University Personnel, It remains a constant source of frustration that Elf University and the entire operation at the North Pole focuses exclusively on Mr. S. Claus and his year-end holiday spree.  We URGE you to consider lending your considerable resources and expertise in providing merriment, cheer, toys, candy, and much more to other holidays year-round, as well as to other mythical characters. For centuries, we have expressed our frustration at your lack of willingness to spread your cheer beyond the inaptly-called “Holiday Season.”  There are many other perfectly fine holidays and mythical characters that need your direct support year-round. If you do not accede to our demands, we will be forced to take matters into our own hands.  We do not make this threat lightly.  You have less than six months to act demonstrably. Sincerely, --A Concerned and Aggrieved Character
+
+
+--- Terminal challenge : Laser
+
+It's in powershell
+cat --- Get-Content
+	What's become of your dear laser?
+	Fa la la la la, la la la la
+	Seems you can't now seem to raise her!
+	Fa la la la la, la la la la
+	Could commands hold riddles in hist'ry?
+	Fa la la la la, la la la la
+	Nay! You'll ever suffer myst'ry!
+	Fa la la la la, la la la la
+Get-History | Format-List -Property *
+	Id                 : 1
+	CommandLine        : Get-Help -Name Get-Process 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:54:37 PM
+	EndExecutionTime   : 11/29/19 4:54:37 PM
+	Duration           : 00:00:00.2031170
+
+	Id                 : 2
+	CommandLine        : Get-Help -Name Get-* 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:55:15 PM
+	EndExecutionTime   : 11/29/19 4:55:26 PM
+	Duration           : 00:00:10.6409522
+
+	Id                 : 3
+	CommandLine        : Set-ExecutionPolicy Unrestricted 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:55:28 PM
+	EndExecutionTime   : 11/29/19 4:55:30 PM
+	Duration           : 00:00:02.4063744
+
+	Id                 : 4
+	CommandLine        : Get-Service | ConvertTo-HTML -Property Name, Status > 
+		             C:\services.htm 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:55:46 PM
+	EndExecutionTime   : 11/29/19 4:55:46 PM
+	Duration           : 00:00:00.0466933
+
+	Id                 : 5
+	CommandLine        : Get-Service | Export-CSV c:\service.csv 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:55:55 PM
+	EndExecutionTime   : 11/29/19 4:55:55 PM
+	Duration           : 00:00:00.0313895
+
+	Id                 : 6
+	CommandLine        : Get-Service | Select-Object Name, Status | Export-CSV 
+		             c:\service.csv 
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:56:00 PM
+	EndExecutionTime   : 11/29/19 4:56:00 PM
+	Duration           : 00:00:00.0309489
+
+	Id                 : 7
+	CommandLine        : (Invoke-WebRequest 
+		             http://127.0.0.1:1225/api/angle?val=65.5).RawContent
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:56:44 PM
+	EndExecutionTime   : 11/29/19 4:56:44 PM
+	Duration           : 00:00:00.0310799
+
+	Id                 : 8
+	CommandLine        : Get-EventLog -Log "Application" 
+	ExecutionStatus    : Stopped
+	StartExecutionTime : 11/29/19 4:56:56 PM
+	EndExecutionTime   : 11/29/19 4:57:14 PM
+	Duration           : 00:00:18.7496697
+
+	Id                 : 9
+	CommandLine        : I have many name=value variables that I share to 
+		             applications system wide. At a command I will reveal my 
+		             secrets once you Get my Child Items.
+	ExecutionStatus    : Completed
+	StartExecutionTime : 11/29/19 4:57:16 PM
+	EndExecutionTime   : 11/29/19 4:57:16 PM
+	Duration           : 00:00:00.6090308
+
+Get-ChildItem env:
+Get-ChildItem env:riddle
+Get-Content env:riddle
+
+Squeezed and compressed I am hidden away. Expand me from my prison and I will show you the way. Recurse through all /etc and Sort on my LastWriteTime to reveal im the newest of all.
+

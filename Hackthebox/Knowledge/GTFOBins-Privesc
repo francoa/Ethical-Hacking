@@ -1,0 +1,4 @@
+vulnhub lin.security - download ova
+go to lin.security walkthrough to learn privesc
+condition: you need to be added as sudoer (sudo -l)
+

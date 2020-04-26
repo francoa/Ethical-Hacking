@@ -1,0 +1,45 @@
+HONEYPOT
+
+- install dnsmasq hostapd build-essential pkg-config libssl-dev libnl-genl-3-dev bettercap
+- (Not needed for Fake AP) # Put in monitor mode: airmon-ng start wlan0
+- Create hostapd.conf file with :
+	interface=wlan0mon
+	driver=nl80211
+	ssid=[Fake AP Name] 
+	hw_mode=g
+	channel=[Fake AP Channel]
+	macaddr_acl=0
+	ignore_broadcast_ssid=0
+	wpa=2
+	wpa_passphrase=12341234
+- Run hostapd hostapd.conf
+- enable ip forwarding echo 1 > /proc/sys/net/ipv4/ip_forward
+- route traffic with iptables:
+	iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE
+	iptables --append FORWARD --in-interface wlan0mon -j ACCEPT
+- dnsmasq is a DHCP server, with support of dns forwarder. We need to configure dnsmasq.conf
+	- Configure this to assign IP to clients
+	- In dnsmasq.conf add 
+		interface=wlan0mon      
+		dhcp-range=10.0.0.10,10.0.0.250,12h
+		dhcp-option=3,10.0.0.1
+		dhcp-option=6,10.0.0.1
+		server=8.8.8.8
+		log-queries
+		log-dhcp
+		listen-address=127.0.0.1
+	- Assign DNS server IP to interface ifconfig wlan0mon 10.0.0.1 up
+	- run dnsmasq -C dnsmasq.conf -d
+- Start wireshark on wlan0mon and install certificates of the printer
+
+- mitmproxy does not work for TCP connections?
+- Route traffic to port 8080 so mitmproxy can listen
+	iptables -D PREROUTING -t nat -i wlan0mon -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 8080
+	iptables -D PREROUTING -t nat -i wlan0mon -p tcp -m tcp --dport 443 -j REDIRECT --to-ports 8080
+- Install mitmproxy certs in the printer
+- Install SSL keys in Wireshark
+
+- Save iptables : iptables-save > file.up.rules
+
+
+- bettercap, dns.spoof.all true, dns.spoof.domains tinyurl.com,hp.com, dns.spoof on

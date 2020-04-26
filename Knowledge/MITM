@@ -1,0 +1,104 @@
+** Gathering information
+
+- Use Zenmap (nmap)
+
+** MITM
+
+*** ARP Poisoning
+
+- arp -a to get the ARP table
+- arpspoof -i [interface] -t [clientIP] [gatewayIP] && arpspoof -i [interface] -t [gatewayIP] [clientIP] - then use Wireshark
+- need to enable portfowarding to allow the computer to route traffic to router: echo 1 > /proc/sys/netipv4/ip_forward
+- bettercap -iface [interface] - opens a different prompt.
+
+**** Bettercap
+
+- Modules are important
+- net.probe on - keep sending UDP packets to discover connected clients
+- net.show to see all the collected clients
+- set arp.spoof.fullduplex true - attack target and gateway
+- set arp.spoof.targets IP1,IP2,...
+- After arp.spoof on, we can capture data with wireshark, or also net.sniff module in bettercap. This will not work with https
+- You can add this in a script file and run with "bettercap -iface iface -caplet fileName.cap"
+
+*** HTTPS
+
+- HTTP with an added sec layer. TLS or SSL
+- Very difficult to bypass HTTPS. The best is to downgrade HTTPS to HTTP. 
+- Best to use is sslstrip
+- Another option is with bettercap, which has limitations. There's a buggy caplet called hstshijack. There's a non buggy version in the course.
+
+**** Bettercap
+
+- Then we use normal ARP spoofing
+- set net.sniff.local true (sniff all data, even local)
+- caplets.show (list all caplets)
+- DOES NOT work with HSTS
+
+*** HSTS
+
+- Browsers are hard-coded to load these websites with HTTPS
+- Replace URLs with similar looking ones : com - corn
+- The caplet provided contains code to make the URL change.
+- set hstshijack.targets
+- set hstshijack.replacements
+- set hstshijack.obfuscate/encode (obfuscate/encode code)
+- set hstshijack.payloads (javascript injection)
+- set dns.spoof.domains (use set hstshijack.replacements)
+- This only works when clicking facebook via other link, not when directly accessing facebook.com via the URL bar.
+
+*** DNS Spoofing
+
+- Name resolution (name -> IP)
+- Start bettercap spoof
+- Use module dns.spoof
+	- set dns.spoof.all true
+- Will work against HTTP, HTTPS, but not HSTS
+- Show fake login pages, malware embedded in fake websites, serve fake updates.
+
+*** Injecting JS Code
+
+- Use set hstshijack.payloads *:file,*:file2,domain:file3
+- We cannot inject into HSTS
+
+*** Use of Wireshark
+
+- Port 80, default web portfowarding
+- In bettercap, set net.snoof.output fileLocation
+
+*** Fake access point (honeypot)
+
+- Interface with internet access <-> Machine <-> wireless adapter that supports AP mode
+- Things in advanced course: evil twin attack, hacking into WPA
+
+**** Mana-toolkit
+- start-noupstream.sh - fake AP with no internet
+- start-nat-simple.sh - fake AP with internet access
+- start-nat-full.sh - fake AP with internet access and some more, but better use the simple script
+- Put wifi adaptor in Managed Mode and not connected to any network
+- Settings in hostapd-mana.conf:
+	- Modify SSID: name of the AP
+	- Modify interface if needed: wlan0
+- Modify start script:
+	- upstream: getting internet interface
+	- phy: AP adapter
+
+** MITM Security
+
+*** Detecting ARP poisoning
+- xarp is a tool to automatically monitor MAC addresses duplicates
+- In wireshark we can detect ARP storms:
+	- netdiscover -i eth0 -r 10.10.10.1/24
+	- Lots of Broadcast enquiring about IPs
+	- Analyze -> Expert Information
+- Static ARP tables might be good in small networks
+
+*** Protect data
+- encrypt connections
+	- There are add ons to browsers that expand the HSTS websites list. Downgrading to HTTP won't work.
+	- It will force websites that support HTTPS to load that.
+	- Does not protect HTTP, the attacker can still see the URLs we're browsing, they can still perform DNS spoofing
+- Use VPN
+	- Avoid free providers
+	- Make sure they keep no logs
+	- Make sure you use HTTPS anyways. Data leaving the VPN server will be encrypted anyways

