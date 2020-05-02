@@ -1,8 +1,43 @@
 Boxes owned have not been retired yet:
 
-Magic
-Obscurity
-OpenAdmin
-Traceback
-Traverxec
-Resolute
+### Traverxec
+- Difficulty: easy
+- OS: Linux
+- Date user owned: April 7th 2020
+- Date root owned: April 8th 2020
+- Date writeup created: -
+
+### OpenAdmin
+- Difficulty: easy
+- OS: Linux
+- Date user owned: April 10th 2020
+- Date root owned: April 11th 2020
+- Date writeup created: -
+
+### Traceback
+- Difficulty: easy
+- OS: Linux
+- Date user owned: April 11th 2020
+- Date root owned: April 11th 2020
+- Date writeup created: -
+
+### Obscurity
+- Difficulty: intermediate
+- OS: Linux
+- Date user owned: April 16th 2020
+- Date root owned: April 16th 2020
+- Date writeup created: -
+
+### Magic
+- Difficulty: intermediate
+- OS: Linux
+- Date user owned: April 26th 2020
+- Date root owned: April 26th 2020
+- Date writeup created: -
+
+### Resolute
+- Difficulty: intermediate
+- OS: Windows
+- Date user owned: April 27th 2020
+- Date root owned: May 2nd 2020
+- Date writeup created: -
