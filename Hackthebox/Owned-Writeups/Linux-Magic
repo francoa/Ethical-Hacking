@@ -1,0 +1,40 @@
+- nmap shows ports 22 and 80 open
+- Dirbuster shows there's a login.php, upload.php and logout.php
+- Cannot get to upload.php without login
+- Using burp, can get to upload.php by just intercepting the response and erasing redirection to login.php
+- Now we can upload images
+- Using burp, upload a file and use this technique: https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload : Weak Protections and Bypassing Methods
+	- Grab a file upload with burp
+	- Change extension to .php.jpg
+	- Add commands at the end
+	- Upload it
+	- Then send a get request for it ( at /images/uploads/name.php.jpg )
+	- This makes Apache run the command -> RCE
+
+- We can now get a reverse shell by uploading laudanum reverse shell for php and running it with the vulnerability found above
+
+- Viewing at /home and /etc/passwd, the user is theseus
+- At /var/www, there is the php files mentioned above and also a db.php5
+	- This file has credentials for a mysql server
+	- We also find out that the DB is called Magic and there is a "login" table, which was used to validate users in login.php
+- To find the mysql server, run ss -antup | grep 127.0.0.1 -> mysql at port 3306
+- Dump db: mysqldump --user=user --password=password Magic login
+- We get other set of credentials for theseus
+- su - theseus and inputing this last set of creds, we get user access
+
+
+So far so good, pretty straight forwards. The issue now comes with achieving root.
+So far I've tried:
+	- Linpeas and linenum
+	- Linpeas showed a database in .local folder. Dumping it showed no useful information
+	- logrotate can be attacked, but it seems that it doesn't work on the writable local folders
+		- Just as FYI, systemctl list-timers --all lists the time for all cron jobs to launch
+	- sysinfo SUID privesc
+		- Did some reverse engineering with Ghidra, sysinfo runs "lshw -short", "fdisk -l", "cat /proc/cpuinfo", "free -h"
+		- It runs as root by defaults, it seems
+		- I analyzed all binaries for sideloading capabilities: strace /bin/sysinfo 2>&1 | grep -i -E "open|access|no such file" | grep "\.so"
+		- Reversing also showed that what was being run with sysinfo was exec("lshw -short") and so on, so what I did was to add a folder I control to the PATH environment variable and ran sysinfo. In this folder I created a binary called lshw that opened a reverse shell. This way I achieved root.
+
+
+
+

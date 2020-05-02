@@ -1,0 +1,29 @@
+This box is mainly custom exploitation
+An nmap scan shows port 8080 and port 9000 listening
+Browsing the HTTP server at 8080, we find out that the web server running is a custom-made software. So is the encryption and SSH client (inside the box, not the one showing to the outside world)
+There's also a message to "developers": the code for the server is in a file called "SuperSecureServer.py"
+I attempted dirbuter, but ended up doing a little bit of directory traversal: GET /..%2fSuperSecureServer.py
+
+This python script showed the following piece of code:
+	info = "output = 'Document: {}'"
+	exec(info.format(path))
+Clearly a coding error that allows remote code execution (RCE)
+	GET /index.html'%3bos.system('echo%20whatever')%3boutput%3d'Document%3a%20index.html
+And changing the echo for a command that would open up a reverse shell. Note the URL encoding
+As www-data, I ran linpeas and realized that /home/robert files are readable
+In /home/robert, there's a couple of interesting files
+- check.txt: it contains a message that says that encrypting this file with robert's key would give the file in out.txt
+- out.txt: check.txt encrypted with robert's key
+- passwordreminder.txt: robert's password encrypted with key
+- SuperSecureCrypt.py: scrypt to encrypt/decrypt
+- BetterSSH folder: to achieve root
+
+The encryption in the script was just a couple of basic operations using a key that had no restrictions as to its length and would repeat itself. Kind of a very old "encryption" method. If the key was "hello", it would keep contatenating it "hellohellohello" as needed for each of the input characters. The characters were encrypted one by one.
+This is very easy to crack. I just took the numbers representing the chars in check.txt and out.txt, attempted the encryption operation with increasing numbers (representing the characters in the key) for each couple of chars. When equal, we've found a letter of the key.
+Doing that, the key is alexandrovich. Then I decrypted the passwordreminder and obtained robert's password: SecThruObsFTW
+
+To get root, it's pretty easy as well. Running linpeas as robert, we find out that there's a command that can be run as root without password. That's the python script in BetterSSH folder. This script authenticates a user and runs a command for them. We don't have any other user than robert, so if this was properly done, we couldn't run any command as root.
+However, the way of running commands is:
+	sudo -u robert [command to input by user]
+So, if the command to imput is: -u root cat /root/root.txt
+We get the flag, since the sudo -u is overwritten by the second -u

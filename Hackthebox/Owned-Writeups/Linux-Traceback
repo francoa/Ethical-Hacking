@@ -1,0 +1,28 @@
+Pretty easy one
+Nmap showed only port 80 and 22
+In index.html, port 80, there was a message.
+By inspecting the source, I saw a comment and the name of the author
+	- Some of the best web shells that you might need
+	- Xh4H
+Browsing that, I found a github page with several webshells
+Added the files to a wordlist and ran dirbuster
+10.10.10.181/smevk.php found
+In github, default config for smevk.php was admin admin
+Logged in
+Launch a reverse shell
+User is webadmin, not the one we are looking for. sysadmin is the real user
+# sudo -l
+	- (sysadimn) NOPASSWD: /home/sysadmin/luvit
+
+# sudo -u sysadmin /home/sysadmin/luvit -e 'os.execute("/bin/sh")' opens a a shell as sysadmin
+If you see the help in luvit, it's a lua interpreter, so we can easily get out of that (GTFObins)
+
+From linpeas, there are some writeable files in /etc/update-motd.d as sysadmin
+This are the MOTD, the text that appears when a user logs in
+
+So far, we haven't logged in with any user.
+With webadmin, I run # ssh-keygen
+I copy the resulting key-pair to my local environment and add the public key to authorized_keys in webadmin/.ssh
+Then ssh -i id_rsa webadmin@10.10.10.181
+
+To have a reverse shell as root, just add (as sysadmin) echo "reverse shell command" >> /etc/update-motd.d/00-header 
