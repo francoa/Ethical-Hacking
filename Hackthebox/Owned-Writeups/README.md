@@ -16,7 +16,7 @@ All writeups start from a clean Kali VirtualBox installation.
 - OS: Linux
 - Date user owned: April 10th 2020
 - Date root owned: April 11th 2020
-- Date writeup created: -
+- Date writeup created: May 3rd 2020
 
 ### Traceback
 - Difficulty: easy
