@@ -9,6 +9,11 @@ Details:
 Traverxec was my first ever box. Although it was marked as **easy**, it took me some time to solve it. To be fully honest, at some point I had to go on a search for tips in Reddit and Hackthebox forums, which felt a little bit like cheating. It’s hard to be online searching for tips and not spoil the whole box, but it’s possible. I’ve found Reddit specially useful in that sense.
 
 Sections:
+- [Recon and finding an RCE](#recon-and-finding-an-rce)
+- [Enumerating and poking around](#enumerating-and-poking-around)
+- [Search and learn](#search-and-learn)
+- [Privesc to root](#privesc-to-root)
+- [Learnings from ippsec walkthrough](#learnings-from-ippsec-walkthrough)
 
 
 ## Recon and finding an RCE
