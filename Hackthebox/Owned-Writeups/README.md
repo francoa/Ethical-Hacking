@@ -1,11 +1,11 @@
-Boxes owned have not been retired yet:
+Some of the boxes owned have not been retired yet:
 
 ### Traverxec
 - Difficulty: easy
 - OS: Linux
 - Date user owned: April 7th 2020
 - Date root owned: April 8th 2020
-- Date writeup created: -
+- Date writeup uploaded: May 3rd 2020
 
 ### OpenAdmin
 - Difficulty: easy
