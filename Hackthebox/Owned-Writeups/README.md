@@ -2,6 +2,8 @@ Some of the boxes owned have not been retired yet, thus there will be no writeup
 
 All writeups start from a clean Kali VirtualBox installation.
 
+![alt-text](http://www.hackthebox.eu/badge/image/190341)
+
 ### Traverxec
 - Difficulty: easy
 - OS: Linux
