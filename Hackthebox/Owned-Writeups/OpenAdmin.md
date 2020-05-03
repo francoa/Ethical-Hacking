@@ -26,9 +26,11 @@ There's not much I can do with these results. Browsing to port 80 just shows the
 ![](images/OpenAdmin_2.png?raw=true)
 
 This quickly finds a lot of things. Most of them under ```/ona/```. When looking at this URL in the browser, we find out it seems an outdated software:
+
 ![](images/OpenAdmin_3.png?raw=true)
 
 ```searchsploit openNetAdmin``` confirms the suspicions. There’s an RCE vulnerability in version 18.1.1. It seems it can be run via metasploit. However, the scripts are simple enough to run them by hand. 
+
 ![](images/OpenAdmin_4.png?raw=true)
 
 You just need to copy the curl command and change ```${cmd}``` with the command you want. Sounds easy, right?
@@ -96,7 +98,7 @@ ssh jimmy@10.10.10.171
 
 ```jimmy``` turned out to not be the user I was hoping for. So it must be ```joanna``` who has the flag. Obviously, joanna's files were not accessible. So we have to find a way of moving laterally.
 
-The first thing that I attempted was to get information from the ```mysql``` database. The configurations for it are in the ```/etc/mysql``` folder. In the configuration file we find that the port for the DB is 3306. Using the credentials found for the mysql DB, I logged in and performed a dump of the DB (with ```mysqldump```), but I found nothing interesting.
+The first thing that I attempted was to get information from the ```mysql``` database. The configurations for it are in the ```/etc/mysql``` folder. In the configuration file we find that the port for the DB is 3306. Using the credentials found for the mysql DB, I logged in and performed a dump of the DB (with ```mysql -u ona_sys -p```), but I found nothing interesting.
 
 I then ran [linPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS):
 ```
@@ -115,8 +117,9 @@ password== {sha512 hash}
 Since they are writable, we don't even need to crack the hash. We can just change it for a hash of our own of which we do know the clear text. This is, however, of no use to us so far.
 
 ```index.php```, on successful authentication, redirected to ```main.php```. In that php file, there was an interesting command:
-```
-cat /home/joanna/.ssh/id_rsa
+```php
+$output = shell_exec('cat /home/joanna/.ssh/id_rsa');
+echo "<pre>$output</pre>"
 ```
 
 So it seems that there should be a way of executing commands as joanna. Running ```ss -antup``` will show if there are some local ports which aren't accessible from the outside world, hoping that one of them is running this internal server:
@@ -180,3 +183,11 @@ Then run the GTFOBins command for nano (see above) and that's it.
 **There’s root!**
 
 ## Learnings from [ippsec walkthrough](https://www.youtube.com/watch?v=fdD-JTlkd3k)
+
+Great walktrhough, as always.
+
+- He explains how to bypass the URL encoding problem in [Reverse shell](#reverse-shell) section
+- He explains linPEAS results of SUID and SGID
+- He explains how to test users list against password lists with ```medusa``` for ssh and with ```sucrack``` for bash in the box.
+- He explains a failure in the box that made it so you could get joanna's ssh keys without actually modifying the index.php file. He also explains how he would take advantage of a php error (using == instead of ===)
+- He explains how would he get a reverse shell for root using crontab
