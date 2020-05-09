@@ -15,6 +15,13 @@ Sections:
 - [Going back to getting ssh access](#going-back-to-getting-ssh-access)
 - [Learnings from ippsec walkthrough](#learnings-from-ippsec-walkthrough)
 
+Tools/commands Used
+- nmap
+- dirbuster
+- burp
+- curl
+- [linPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS)
+
 ## Recon
 First things first: run nmap
 ```

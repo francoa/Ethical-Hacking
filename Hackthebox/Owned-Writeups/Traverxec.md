@@ -15,6 +15,13 @@ Sections:
 - [Privesc to root](#privesc-to-root)
 - [Learnings from ippsec walkthrough](#learnings-from-ippsec-walkthrough)
 
+Tools/commands Used
+- nmap
+- metasploit
+- [linPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS)
+- [LinEnum](https://github.com/rebootuser/LinEnum)
+- hashcat
+- john
 
 ## Recon and finding an RCE
 So, first things first: recon.

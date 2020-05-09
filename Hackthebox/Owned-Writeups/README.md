@@ -30,7 +30,7 @@ All writeups start from a clean Kali VirtualBox installation.
 - OS: Linux
 - Date user owned: April 16th 2020
 - Date root owned: April 16th 2020
-- Date writeup created: -
+- Date writeup created: May 9th 2020
 
 ### Magic
 - Difficulty: intermediate
