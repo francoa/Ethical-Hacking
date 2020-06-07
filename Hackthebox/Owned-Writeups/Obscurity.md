@@ -202,6 +202,6 @@ The first ```-u``` is “overwritten” by the second.
 
 ![](images/Obscurity_9.png?raw=true)
 
-##Learnings from ippsec walkthrough
+## Learnings from ippsec walkthrough
 
 TODO
