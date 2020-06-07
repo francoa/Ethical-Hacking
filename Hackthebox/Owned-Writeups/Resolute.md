@@ -85,7 +85,7 @@ I also ran many enumeration scripts and Bloodhound, which turned out to be usefu
 
 ![](images/Resolute_10.png?raw=true)
 
-I have to admit that not being very profficient in the use of Bloodhound, at first I was overwhelmed with the amount of information and followed a bunch of rabbit holes. My attempt to run PowerView above was one of those. I'm not goint into details here on how to use Bloodhound, as I'm sure there are many good resources out there to look at.
+I have to admit that not being very profficient in the use of Bloodhound, at first I was overwhelmed with the amount of information and followed a bunch of rabbit holes. My attempt to run PowerView above was one of those. I'm not going into details here on how to use Bloodhound, as I'm sure there are many good resources out there to look at.
 
 What I should have seen, however, was that there was another user that could remote into the Domain Controller. This should have been an interesting clue for me.
 
@@ -108,7 +108,7 @@ We're still not there yet. This box seems to never end!
 
 User ```ryan``` has a singularity, and it is that it belongs to the group DNSADMINS. I realized that while looking at the Bloodhound analysis, but since then I have not been able to reproduce the same query that I did to find it out. Anyways, any good enumeration script would have told me the same. 
 
-After a bit of browsing around (just look for "DNSAdmin privilege escalation" and there'll be a bunch of results) I knew [what to do](https://medium.com/@esnesenon/feature-not-bug-dnsadmin-to-dc-compromise-in-one-line-a0f779b8dc83). It seems that you can tell the DNS server to load an arbitrary DLL and run it. You can even use an UNC path, which is what I use in the following image
+After a bit of browsing around (just look for "DNSAdmin privilege escalation" and there'll be a bunch of [results](https://medium.com/@esnesenon/feature-not-bug-dnsadmin-to-dc-compromise-in-one-line-a0f779b8dc83)) I knew what to do. It seems that you can tell the DNS server to load an arbitrary DLL and run it. You can even use an UNC path, which is what I use in the following image
 
 ![](images/Resolute_9.png?raw=true)
 
