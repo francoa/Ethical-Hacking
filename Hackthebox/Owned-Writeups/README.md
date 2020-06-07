@@ -44,4 +44,4 @@ All writeups start from a clean Kali VirtualBox installation.
 - OS: Windows
 - Date user owned: April 27th 2020
 - Date root owned: May 2nd 2020
-- Date writeup created: -
+- Date writeup created: June 7th 2020
