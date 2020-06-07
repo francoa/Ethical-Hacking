@@ -83,6 +83,8 @@ I also ran many enumeration scripts and Bloodhound, which turned out to be usefu
 - Change chrome-sandbox permissions/owner as needed
 - Import the zip file in Bloodhound
 
+![](images/Resolute_10.png?raw=true)
+
 I have to admit that not being very profficient in the use of Bloodhound, at first I was overwhelmed with the amount of information and followed a bunch of rabbit holes. My attempt to run PowerView above was one of those. I'm not goint into details here on how to use Bloodhound, as I'm sure there are many good resources out there to look at.
 
 What I should have seen, however, was that there was another user that could remote into the Domain Controller. This should have been an interesting clue for me.
