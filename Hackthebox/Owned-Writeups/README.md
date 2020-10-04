@@ -23,7 +23,7 @@ All writeups start from a clean Kali VirtualBox installation.
 - OS: Linux
 - Date user owned: April 11th 2020
 - Date root owned: April 11th 2020
-- Date writeup created: -
+- Date writeup created: October 4th 2020
 
 ### Obscurity
 - Difficulty: intermediate
@@ -37,7 +37,7 @@ All writeups start from a clean Kali VirtualBox installation.
 - OS: Linux
 - Date user owned: April 26th 2020
 - Date root owned: April 26th 2020
-- Date writeup created: -
+- Date writeup created: October 4th 2020
 
 ### Resolute
 - Difficulty: intermediate
