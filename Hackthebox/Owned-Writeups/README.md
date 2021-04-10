@@ -45,3 +45,10 @@ All writeups start from a clean Kali VirtualBox installation.
 - Date user owned: April 27th 2020
 - Date root owned: May 2nd 2020
 - Date writeup created: June 7th 2020
+
+### Worker
+- Difficulty: intermediate
+- OS: Windows
+- Date user owned: 
+- Date root owned: 
+- Date writeup created: March 2021
